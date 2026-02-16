@@ -1,0 +1,9 @@
+# Downloaded data files
+data/*.parquet
+data/*.duckdb
+
+# Pipeline output
+output/
+
+# Julia artifacts
+Manifest.toml
