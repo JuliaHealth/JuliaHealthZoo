@@ -1,0 +1,22 @@
+[database]
+# Absolute path to your OMOP DuckDB file (forward slashes work on all platforms)
+# Windows example: "C:/Users/yourname/Desktop/synthea_1M_3YR.duckdb"
+# macOS/Linux example: "/home/yourname/data/synthea_1M_3YR.duckdb"
+path = "/path/to/your/omop.duckdb"
+
+[schema]
+# The DuckDB schema that contains your OMOP tables
+name = "dbt_synthea_dev"
+
+[cohorts]
+# Paths to OHDSI cohort definition JSON files (relative to this config file)
+target_json  = "data/definitions/Hypertension.json"
+outcome_json = "data/definitions/Pneumonia.json"
+
+# Cohort definition IDs written into the cohort table
+target_cohort_id  = 1
+outcome_cohort_id = 2
+
+# Human-readable labels used in pipeline output
+target_label  = "Hypertension (target)"
+outcome_label = "Pneumonia (outcome)"

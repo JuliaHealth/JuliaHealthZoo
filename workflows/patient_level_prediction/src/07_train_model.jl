@@ -1,0 +1,47 @@
+using CSV: CSV
+import DataFrames: DataFrame, select, Not
+import CategoricalArrays: categorical, levels
+using MLJLinearModels: MLJLinearModels
+using MLJDecisionTreeInterface: MLJDecisionTreeInterface
+import MLJBase: machine, fit!, predict
+using ROCAnalysis
+using Distributions
+using MLJXGBoostInterface
+
+const OUTPUT_DIR = joinpath(@__DIR__, "..", "output")
+
+train_df = CSV.read(joinpath(OUTPUT_DIR, "train.csv"), DataFrame)
+test_df = CSV.read(joinpath(OUTPUT_DIR, "test.csv"), DataFrame)
+
+train_df.outcome = categorical(string.(train_df.outcome); levels=["0", "1"])
+test_df.outcome = categorical(string.(test_df.outcome); levels=["0", "1"])
+
+y_train = train_df.outcome
+X_train = select(train_df, Not(:outcome))
+y_test = test_df.outcome
+X_test = select(test_df, Not(:outcome))
+
+function evaluate_model(model, X_train, y_train, X_test, y_test)
+    m = machine(model, X_train, y_train; scitype_check_level=0)
+    fit!(m; verbosity=0)
+    preds = predict(m, X_test)
+    pos_label = levels(y_train)[2]
+    probs = [Float64(pdf(p, pos_label)) for p in preds]
+    true_vals = [x == pos_label ? 1.0 : 0.0 for x in y_test]
+    auc_val = auc(ROCAnalysis.roc(probs, true_vals))
+    return auc_val, m
+end
+
+logreg_model = MLJLinearModels.LogisticClassifier(;
+    penalty=:l1, lambda=0.0428, solver=MLJLinearModels.ProxGrad(; max_iter=5000)
+)
+auc_logreg, mach_logreg = evaluate_model(logreg_model, X_train, y_train, X_test, y_test)
+println("L1 Logistic Regression AUC: ", round(auc_logreg; digits=4))
+
+rf_model = MLJDecisionTreeInterface.RandomForestClassifier(; n_trees=100, max_depth=10)
+auc_rf, mach_rf = evaluate_model(rf_model, X_train, y_train, X_test, y_test)
+println("Random Forest AUC:          ", round(auc_rf; digits=4))
+
+gbm_model = MLJXGBoostInterface.XGBoostClassifier(; num_round=100, max_depth=5, eta=0.1)
+auc_gbm, mach_gbm = evaluate_model(gbm_model, X_train, y_train, X_test, y_test)
+println("XGBoost AUC:                ", round(auc_gbm; digits=4))
