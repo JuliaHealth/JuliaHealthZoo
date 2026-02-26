@@ -17,8 +17,7 @@ makedocs(;
     ],
     format = DocumenterVitepress.MarkdownVitepress(
         repo = "github.com/JuliaHealth/JuliaHealthZoo",
-        deploy_url = "https://juliahealth.org/JuliaHealthZoo/",
-        devurl = "",
+        devurl = "dev",
         devbranch = "main",
     ),
 )

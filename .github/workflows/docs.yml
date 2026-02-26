@@ -9,10 +9,12 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
+  statuses: write
 
 jobs:
-  build-and-deploy:
+  docs:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,21 +26,25 @@ jobs:
         with:
           version: "1"
 
+      - name: Cache Julia artifacts
+        uses: julia-actions/cache@v2
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "22"
 
       - name: Instantiate docs environment
-        working-directory: docs
-        run: julia --project=. -e "using Pkg; Pkg.instantiate()"
+        shell: julia --project=docs --color=yes {0}
+        run: |
+          using Pkg
+          Pkg.instantiate()
 
-      - name: Build docs
-        working-directory: docs
-        run: julia --project=. make.jl
+      - name: Build package
+        uses: julia-actions/julia-buildpkg@v1
 
-      - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/build
+      - name: Deploy docs
+        uses: julia-actions/julia-docdeploy@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
