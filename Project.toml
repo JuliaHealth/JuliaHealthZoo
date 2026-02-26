@@ -1,0 +1,6 @@
+name = "JuliaHealthZoo"
+uuid = "886f7c4e-9682-4e9f-af4c-faf876c81a31"
+version = "0.1.0"
+
+[compat]
+julia = "1.10"
