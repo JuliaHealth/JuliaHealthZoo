@@ -15,17 +15,18 @@ makedocs(;
         "Geospatial Health Informatics" => "geospatial.md",
         "MRI Simulation and Analysis"   => "mri.md",
     ],
-    format=DocumenterVitepress.MarkdownVitepress(;
+    format = DocumenterVitepress.MarkdownVitepress(
         repo = "github.com/JuliaHealth/JuliaHealthZoo",
-        devbranch = "main", 
-        devurl = "dev",
-    )
+        deploy_url = "https://juliahealth.org/JuliaHealthZoo/",
+        devurl = "",
+        devbranch = "main",
+    ),
 )
 
 DocumenterVitepress.deploydocs(;
     repo = "github.com/JuliaHealth/JuliaHealthZoo",
-    target = joinpath(@__DIR__, "build"),
-    branch = "gh-pages",
+    target = "build",      
     devbranch = "main",
+    branch = "gh-pages",
     push_preview = true,
 )
