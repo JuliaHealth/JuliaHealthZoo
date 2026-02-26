@@ -13,7 +13,7 @@ function getBaseRepository(base: string): string {
 }
 
 const baseTemp = {
-  base: '/JuliaHealthZoo/',// TODO: replace this in makedocs!
+  base: '/juliahealth.org/JuliaHealthZoo/',// TODO: replace this in makedocs!
 }
 
 const navTemp = {
@@ -41,7 +41,7 @@ const nav = [
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  base: '/JuliaHealthZoo/',// TODO: replace this in makedocs!
+  base: '/juliahealth.org/JuliaHealthZoo/',// TODO: replace this in makedocs!
   title: 'JuliaHealthZoo',
   description: 'Documentation for JuliaHealthZoo',
   lastUpdated: true,
@@ -70,7 +70,7 @@ export default defineConfig({
       mathjax.vitePlugin,
     ],
     define: {
-      __DEPLOY_ABSPATH__: JSON.stringify('/JuliaHealthZoo'),
+      __DEPLOY_ABSPATH__: JSON.stringify('/juliahealth.org/JuliaHealthZoo'),
     },
     resolve: {
       alias: {
