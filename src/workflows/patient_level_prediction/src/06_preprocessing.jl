@@ -5,8 +5,6 @@ import CategoricalArrays: categorical
 import MLJBase: partition
 import Statistics: mean, std
 
-const OUTPUT_DIR = joinpath(@__DIR__, "..", "output")
-
 function preprocess_data()
     df = CSV.read(joinpath(OUTPUT_DIR, "plp_final.csv"), DataFrame)
     select!(df, Not([:total_quantity, :max_observation_value]))

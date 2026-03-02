@@ -6,11 +6,12 @@ makedocs(;
     pages=[
         "Home" => "index.md",
         "Patient-Level Prediction" => [
-            "Introduction"                       => "plp-intro.md",
-            "Examples"                           => "plp-examples.md",
-            "Setup and Cohort Building"          => "plp-setup.md",
+            "Get Started" => "plp-get-started.md",
+            "Introduction" => "plp-intro.md",
+            "Package Examples" => "plp-examples.md",
+            "Setup and Cohort Building" => "plp-setup.md",
             "Feature Engineering and Preprocessing" => "plp-features.md",
-            "Training and Evaluation"            => "plp-modeling.md",
+            "Training and Evaluation" => "plp-modeling.md",
         ],
         "Geospatial Health Informatics" => "geospatial.md",
         "MRI Simulation and Analysis"   => "mri.md",

@@ -2,9 +2,6 @@ using CSV: CSV
 import DataFrames: DataFrame, leftjoin
 import DBInterface: execute
 
-const OUTPUT_DIR = joinpath(@__DIR__, "..", "output")
-const COHORT_TABLE = "cohort"
-
 features_df = CSV.read(joinpath(OUTPUT_DIR, "plp_features.csv"), DataFrame)
 
 outcome_query = """

@@ -6,11 +6,7 @@ import DataFrames: DataFrame, outerjoin, select!
 using CSV: CSV
 import Dates: year, today
 
-const OUTPUT_DIR = joinpath(@__DIR__, "..", "output")
-const COHORT_TABLE = "cohort"
 const RECENT_DAYS = 365
-
-mkpath(OUTPUT_DIR)
 
 # Demographics: age, gender, race, ethnicity
 demographics_query = """
@@ -31,8 +27,7 @@ select!(demographics_df, Not(:year_of_birth))
 
 conditions_query = """
 SELECT c.subject_id,
-       COUNT(DISTINCT ca.ancestor_concept_id) AS condition_count,
-       MAX(co.condition_status_concept_id) AS max_condition_status
+       COUNT(DISTINCT ca.ancestor_concept_id) AS condition_count
 FROM $SCHEMA.$COHORT_TABLE c
 JOIN $SCHEMA.condition_occurrence co ON c.subject_id = co.person_id
 JOIN $SCHEMA.concept_ancestor ca ON co.condition_concept_id = ca.descendant_concept_id

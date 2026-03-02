@@ -8,8 +8,6 @@ using ROCAnalysis
 using Distributions
 using MLJXGBoostInterface
 
-const OUTPUT_DIR = joinpath(@__DIR__, "..", "output")
-
 train_df = CSV.read(joinpath(OUTPUT_DIR, "train.csv"), DataFrame)
 test_df = CSV.read(joinpath(OUTPUT_DIR, "test.csv"), DataFrame)
 

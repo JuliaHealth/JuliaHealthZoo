@@ -1,14 +1,14 @@
 # Setup and Cohort Building
 
-This page walks through the actual code from [`run.jl`](https://github.com/JuliaHealth/JuliaHealthZoo/blob/main/workflows/patient_level_prediction/run.jl) and [`02_cohort_definition.jl`](https://github.com/JuliaHealth/JuliaHealthZoo/blob/main/workflows/patient_level_prediction/src/02_cohort_definition.jl) - loading configuration, connecting to the database, and building cohorts.
+This page walks through the actual code from [`run.jl`](https://github.com/JuliaHealth/JuliaHealthZoo/blob/main/src/workflows/patient_level_prediction/run.jl) and [`02_cohort_definition.jl`](https://github.com/JuliaHealth/JuliaHealthZoo/blob/main/src/workflows/patient_level_prediction/src/02_cohort_definition.jl) - loading configuration, connecting to the database, and building cohorts.
 
 ## Configuration File
 
-The workflow is driven by a single `config.toml` file. Copy `config.toml.example` → `config.toml` and set your paths.
+The workflow is driven by a single `config.toml` file. Copy `config.toml.example` -> `config.toml` and set your paths.
 
 ```toml
 [database]
-path = "C:/Users/yourname/Desktop/synthea_1M_3YR.duckdb"
+path = "/path/to/your/omop_cdm.duckdb"
 
 [schema]
 name = "dbt_synthea_dev"
@@ -35,7 +35,7 @@ config_file = joinpath(@__DIR__, "config.toml")
 if !isfile(config_file)
     error("""
     config.toml not found.
-    Copy config.toml.example → config.toml and set your paths.
+    Copy config.toml.example -> config.toml and set your paths.
     """)
 end
 config = TOML.parsefile(config_file)
@@ -48,7 +48,7 @@ if !isfile(DB_PATH)
 end
 ```
 
-From [`01_data_loader.jl`](https://github.com/JuliaHealth/JuliaHealthZoo/blob/main/workflows/patient_level_prediction/src/01_data_loader.jl), the cohort JSON paths are validated:
+From [`01_data_loader.jl`](https://github.com/JuliaHealth/JuliaHealthZoo/blob/main/src/workflows/patient_level_prediction/src/01_data_loader.jl), the cohort JSON paths are validated:
 
 ```julia
 target_json = joinpath(@__DIR__, "..", config["cohorts"]["target_json"])
@@ -81,7 +81,7 @@ DBInterface.execute(conn, "PRAGMA max_temp_directory_size='50GB'")
 
 [OHDSICohortExpressions.jl](https://github.com/JuliaHealth/OHDSICohortExpressions.jl) converts ATLAS cohort JSON into SQL via [FunSQL.jl](https://mechanicalrabbit.github.io/FunSQL.jl/stable/).
 
-From [`02_cohort_definition.jl`](https://github.com/JuliaHealth/JuliaHealthZoo/blob/main/workflows/patient_level_prediction/src/02_cohort_definition.jl):
+From [`02_cohort_definition.jl`](https://github.com/JuliaHealth/JuliaHealthZoo/blob/main/src/workflows/patient_level_prediction/src/02_cohort_definition.jl):
 
 ```julia
 import DBInterface: execute
@@ -108,7 +108,7 @@ end
 **What this does:**
 
 1. `reflect` - reads the live database schema
-2. `translate` - converts ATLAS JSON → FunSQL expression
+2. `translate` - converts ATLAS JSON -> FunSQL expression
 3. `render` - turns the FunSQL expression into valid DuckDB SQL
 4. `execute` - inserts the cohort rows into the OMOP `cohort` table
 
@@ -139,7 +139,7 @@ for (defn, id, label) in [
     catch e
         msg = sprint(showerror, e)
         error("""
-            ✗ Cohort build failed for: $label (id=$id)
+            Cohort build failed for: $label (id=$id)
 
             Error: $msg
 
@@ -161,4 +161,21 @@ After this step, the OMOP `cohort` table contains:
 |------------------------|--------|-------------|
 | `1` | Target | Hypertensive patients - each with an index date |
 | `2` | Outcome | Patients who subsequently developed pneumonia |
+
+## Final Check: Cohort Build Output
+
+When both cohorts are built successfully, you should see output like this in your terminal:
+
+```
+── Defining cohorts ──────────────────────────────────────────
+  Building: Hypertension (target) ...
+  Done - 269607 rows
+  Building: Pneumonia (outcome) ...
+  Done - 13461 rows
+```
+
+If either count is `0`, check that:
+- Your OMOP CDM contains the specific Concept Set
+- The cohort JSON files exist at the paths in `config.toml`
+- The `cohort` table exists in `$SCHEMA` (created by `run.jl` on first run)
 

@@ -1,85 +1,207 @@
-# Examples
+# Package Examples
 
-Quick examples demonstrating the core JuliaHealth packages used in this workflow.
+This page gives focused, runnable examples of each JuliaHealth package used in the Patient-Level Prediction workflow. Each section corresponds to one step in the pipeline - from initializing a study to querying the database.
 
-## Initialize a Study with HealthBase.jl
+## 1. Initialize a Study with HealthBase.jl
 
-[HealthBase.jl](https://juliahealth.org/HealthBase.jl/dev/) provides the foundational scaffolding for a reproducible observational health study - creating the expected directory structure and registering study metadata.
+[HealthBase.jl](https://juliahealth.org/HealthBase.jl/dev/) provides the scaffolding for a reproducible observational health study. It creates a standardized directory layout and activates a dedicated Julia environment for your project.
+
+Initialize the study:
 
 ```julia
 using HealthBase
 import HealthBase: cohortsdir
 
-# Creates a study directory tree with standard subfolders
+# Creates a new project directory using the observational template
+# and activates a dedicated Julia environment named after the study
 initialize_study("hypertension_to_pneumonia_plp", "Kosuri Lakshmi Indu"; template = :observational)
 ```
-
-This call creates:
+This creates:
 
 ```
 hypertension_to_pneumonia_plp/
-├── cohorts/        ← cohort JSON definitions go here
+├── cohorts/          ← cohort JSON definitions land here
 ├── results/
 └── study.toml
 ```
 
-`cohortsdir()` returns the absolute path to the `cohorts/` subfolder, which is used in the next step.
+`cohortsdir()` returns the absolute path to the `cohorts/` subfolder - used by both the download and translate steps below.
 
-## Download Cohort Definitions with OHDSIAPI.jl
-
-[OHDSIAPI.jl](https://github.com/JuliaHealth/OHDSIAPI.jl) lets you pull cohort definitions directly from the ATLAS demo server and write them to disk.
+First, install the required packages into your global environment:
 
 ```julia
-import OHDSIAPI: download_cohort_definition
+import Pkg
+Pkg.add(
+  [
+    "DataFrames",
+    "Downloads",
+    "DBInterface",
+    "DuckDB",
+    "FunSQL",
+    "OHDSIAPI",
+    "OHDSICohortExpressions"
+  ]
+)
+```
 
-# Cohort IDs from ATLAS: 1792865 = Hypertension target, 1790632 = Pneumonia outcome
+With the environment active, load everything needed for the workflow:
+
+```julia
+using DataFrames
+
+import DBInterface:
+  connect,
+  execute
+import DuckDB:
+  DB
+import FunSQL:
+  reflect,
+  render
+import OHDSIAPI:
+  download_cohort_definition,
+  download_concept_set
+import OHDSICohortExpressions:
+  translate
+```
+
+## 2. Download Cohort Definitions with OHDSIAPI.jl
+
+[OHDSIAPI.jl](https://github.com/JuliaHealth/OHDSIAPI.jl) connects to any [OHDSI ATLAS](https://atlas-demo.ohdsi.org/) instance and downloads phenotype definitions as JSON files that OHDSICohortExpressions.jl can consume.
+
+Download a single cohort definition by its ATLAS ID:
+
+```julia
+# Returns the local path of the downloaded JSON file
+cohort_path = download_cohort_definition(1792865; output_dir = cohortsdir())
+```
+
+To download multiple cohort definitions at once with verbose progress:
+
+```julia
+# Cohort IDs from the ATLAS demo server:
+#   1792865 -> Hypertension (target cohort)
+#   1790632 -> Pneumonia    (outcome cohort)
 cohort_ids = [1792865, 1790632]
 
-# Downloads each cohort JSON and saves it to the study's cohorts/ folder
 download_cohort_definition(cohort_ids; progress_bar = true, verbose = true, output_dir = cohortsdir())
 ```
 
-Each cohort is written as `<id>.json` inside `cohortsdir()`. Setting `progress_bar = true` is useful when downloading many cohorts at once.
-
-## Translate Cohort JSON to SQL with OHDSICohortExpressions.jl
-
-[OHDSICohortExpressions.jl](https://github.com/JuliaHealth/OHDSICohortExpressions.jl) converts ATLAS cohort JSON into runnable SQL - no R required.
+You can also download the associated OMOP concept sets - useful for auditing which clinical codes were included in each phenotype:
 
 ```julia
-using OHDSICohortExpressions, FunSQL
-
-# Read cohort JSON
-cohort_json = read("data/definitions/Hypertension.json", String)
-
-# Translate to FunSQL expression
-cohort_expr = OHDSICohortExpressions.translate(cohort_json; cohort_definition_id = 1)
-
-# Render to SQL (requires database schema reflection)
-catalog = FunSQL.reflect(conn; schema = "dbt_synthea_dev", dialect = :duckdb)
-sql = FunSQL.render(catalog, cohort_expr)
+download_concept_set(cohort_ids; deflate = true, output_dir = cohortsdir())
 ```
 
-## Run SQL Against OMOP CDM with FunSQL.jl and DBInterface.jl
+> **Tip:** Visit [atlas-demo.ohdsi.org/\#/cohortdefinitions](https://atlas-demo.ohdsi.org/#/cohortdefinitions) to explore available phenotype definitions and find the ATLAS cohort ID for any condition of interest.
 
-[FunSQL.jl](https://mechanicalrabbit.github.io/FunSQL.jl/stable/) provides composable query building, while [DBInterface.jl](https://juliadatabases.org/DBInterface.jl/stable/) offers a unified database connection interface.
+## 3. Translate Cohort JSON to SQL with OHDSICohortExpressions.jl
+
+[OHDSICohortExpressions.jl](https://github.com/JuliaHealth/OHDSICohortExpressions.jl) converts an ATLAS cohort JSON file into a [FunSQL.jl](https://mechanicalrabbit.github.io/FunSQL.jl/stable/) query expression. No R or ATLAS WebAPI connection is needed at this stage.
 
 ```julia
-using DuckDB, DBInterface, FunSQL
+# Path to the downloaded target cohort JSON
+cohort_expression = cohortsdir("1792865.json")
 
-# Connect to the OMOP CDM database
-conn = DBInterface.connect(DuckDB.DB, "synthea_1M_3YR.duckdb")
+# Translate to a FunSQL expression
+# cohort_definition_id must match the ID you will INSERT into the cohort table
+fun_sql = translate(cohort_expression; cohort_definition_id = 1)
+```
 
-# Reflect the live schema
-catalog = FunSQL.reflect(conn; schema = "dbt_synthea_dev", dialect = :duckdb)
+Repeat for the outcome cohort (`cohort_definition_id = 2`):
 
-# Build and execute a query
-query = FunSQL.From(:person) |>
-        FunSQL.Select(:person_id, :year_of_birth, :gender_concept_id) |>
-        FunSQL.Limit(10)
+```julia
+outcome_expression = cohortsdir("1790632.json")
+fun_sql_outcome = translate(outcome_expression; cohort_definition_id = 2)
+```
 
-result = DBInterface.execute(conn, FunSQL.render(catalog, query))
+## 4. Run SQL Against OMOP CDM with FunSQL.jl and DBInterface.jl
 
-using DataFrames
+[FunSQL.jl](https://mechanicalrabbit.github.io/FunSQL.jl/stable/) provides type-safe, composable SQL query construction. [DBInterface.jl](https://juliadatabases.org/DBInterface.jl/stable/) gives a unified interface for connecting to and querying any supported database.
+
+### Connect to DuckDB
+
+[DuckDB](https://duckdb.org) is an embedded analytical database - no server, no setup, just a file.
+
+```julia
+const CONNECTION = connect(DB, "/path/to/omop_cdm.duckdb")
+const SCHEMA     = "dbt_synthea_dev"
+const DIALECT    = :duckdb
+```
+
+### Reflect, Render, and Execute
+
+```julia
+# Read the live schema so FunSQL knows what tables and columns exist
+catalog = reflect(CONNECTION; schema = SCHEMA, dialect = DIALECT)
+
+# Render the FunSQL expression to a SQL string
+sql = render(catalog, fun_sql)
+
+# Insert the target cohort population into the cohort table
+execute(
+    CONNECTION,
+    """
+    INSERT INTO $SCHEMA.cohort
+    SELECT * FROM ($sql) AS foo;
+    """
+)
+```
+
+### Verify the Cohort Was Populated
+
+After inserting, query the cohort table to confirm row counts:
+
+```julia
+df = execute(CONNECTION, "SELECT COUNT(*) FROM $SCHEMA.cohort WHERE cohort_definition_id = 1;") |> DataFrame
+println(df)
+```
+
+> **Expected output:**
+> ```
+> 1×1 DataFrame
+>  Row │ count_star()
+>      │ Int64
+> ─────┼──────────────
+>    1 │       269607
+> ```
+
+Repeat for the outcome cohort and verify:
+
+```julia
+sql_outcome = render(catalog, fun_sql_outcome)
+execute(
+    CONNECTION,
+    """
+    INSERT INTO $SCHEMA.cohort
+    SELECT * FROM ($sql_outcome) AS foo;
+    """
+)
+
+df2 = execute(CONNECTION, "SELECT COUNT(*) FROM $SCHEMA.cohort WHERE cohort_definition_id = 2;") |> DataFrame
+println(df2)
+```
+
+> **Expected output:**
+> ```
+> 1×1 DataFrame
+>  Row │ count_star()
+>      │ Int64
+> ─────┼──────────────
+>    1 │        13461
+> ```
+
+### Ad-hoc Queries with FunSQL
+
+FunSQL is also useful for building exploratory queries in a composable, type-safe way:
+
+```julia
+using FunSQL: From, Select, Limit
+
+query = From(:person) |>
+        Select(:person_id, :year_of_birth, :gender_concept_id) |>
+        Limit(10)
+
+result = execute(CONNECTION, render(catalog, query))
 df = DataFrame(result)
+println(df)
 ```
-

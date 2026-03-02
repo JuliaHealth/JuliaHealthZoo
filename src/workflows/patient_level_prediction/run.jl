@@ -36,6 +36,10 @@ const OUTCOME_LABEL = config["cohorts"]["outcome_label"]
 println("Target:  ", TARGET_LABEL, " (id=", TARGET_COHORT_ID, ")")
 println("Outcome: ", OUTCOME_LABEL, " (id=", OUTCOME_COHORT_ID, ")")
 
+const OUTPUT_DIR = joinpath(@__DIR__, "output")
+const COHORT_TABLE = "cohort"
+mkpath(OUTPUT_DIR)
+
 steps = [
     ("Defining cohorts", joinpath("src", "02_cohort_definition.jl")),
     ("Extracting features", joinpath("src", "03_feature_extraction.jl")),
