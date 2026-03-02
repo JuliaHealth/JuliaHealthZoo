@@ -133,7 +133,7 @@ The resulting dataset has one row per patient:
 | `drug_count` | Int | Distinct drugs in lookback window |
 | `condition_count` | Int | Distinct diagnoses in lookback window |
 | `...` | ... | Other extracted features |
-| `outcome` | 0 / 1 | Did this patient develop diabetes? |
+| `outcome` | 0 / 1 | Did this patient develop pneumonia? |
 
 ## Preprocessing
 
@@ -178,4 +178,3 @@ df.gender_concept_id = categorical(df.gender_concept_id)
 df.race_concept_id   = categorical(df.race_concept_id)
 ```
 
-Continue to [Training & Evaluation](plp-modeling.md)

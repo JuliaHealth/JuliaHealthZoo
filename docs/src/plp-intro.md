@@ -71,5 +71,3 @@ In OHDSI terms:
 - **Prediction** - for each patient at their index date, estimate the probability of the outcome occurring
 
 This is the question the rest of this workflow answers - in Julia, end to end.
-
-Continue to [Examples](plp-examples.md)

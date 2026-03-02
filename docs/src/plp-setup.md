@@ -162,4 +162,3 @@ After this step, the OMOP `cohort` table contains:
 | `1` | Target | Hypertensive patients - each with an index date |
 | `2` | Outcome | Patients who subsequently developed pneumonia |
 
-Continue to [Feature Engineering and Preprocessing →](plp-features.md)

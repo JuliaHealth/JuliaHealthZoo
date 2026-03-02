@@ -4,33 +4,42 @@ Quick examples demonstrating the core JuliaHealth packages used in this workflow
 
 ## Initialize a Study with HealthBase.jl
 
-[HealthBase.jl](https://github.com/JuliaHealth/HealthBase.jl) provides the foundational types for a reproducible observational health study.
+[HealthBase.jl](https://juliahealth.org/HealthBase.jl/dev/) provides the foundational scaffolding for a reproducible observational health study - creating the expected directory structure and registering study metadata.
 
 ```julia
 using HealthBase
+import HealthBase: cohortsdir
 
-study = HealthBase.Study(
-    name        = "Hypertension to Pneumonia PLP",
-    description = "Predict pneumonia onset in hypertensive patients",
-    author      = "Kosuri Lakshmi Indu",
-)
+# Creates a study directory tree with standard subfolders
+initialize_study("hypertension_to_pneumonia_plp", "Kosuri Lakshmi Indu"; template = :observational)
 ```
+
+This call creates:
+
+```
+hypertension_to_pneumonia_plp/
+├── cohorts/        ← cohort JSON definitions go here
+├── results/
+└── study.toml
+```
+
+`cohortsdir()` returns the absolute path to the `cohorts/` subfolder, which is used in the next step.
 
 ## Download Cohort Definitions with OHDSIAPI.jl
 
-[OHDSIAPI.jl](https://github.com/JuliaHealth/OHDSIAPI.jl) lets you pull cohort definitions directly from any ATLAS server.
+[OHDSIAPI.jl](https://github.com/JuliaHealth/OHDSIAPI.jl) lets you pull cohort definitions directly from the ATLAS demo server and write them to disk.
 
 ```julia
-using OHDSIAPI
+import OHDSIAPI: download_cohort_definition
 
-# Download cohort JSON by cohort ID
-target_json  = OHDSIAPI.get_cohort_definition(1792865; base_url = "https://atlas-demo.ohdsi.org/WebAPI")
-outcome_json = OHDSIAPI.get_cohort_definition(1790632; base_url = "https://atlas-demo.ohdsi.org/WebAPI")
+# Cohort IDs from ATLAS: 1792865 = Hypertension target, 1790632 = Pneumonia outcome
+cohort_ids = [1792865, 1790632]
 
-# Save for reproducibility
-write("data/definitions/Hypertension.json", target_json)
-write("data/definitions/Pneumonia.json",     outcome_json)
+# Downloads each cohort JSON and saves it to the study's cohorts/ folder
+download_cohort_definition(cohort_ids; progress_bar = true, verbose = true, output_dir = cohortsdir())
 ```
+
+Each cohort is written as `<id>.json` inside `cohortsdir()`. Setting `progress_bar = true` is useful when downloading many cohorts at once.
 
 ## Translate Cohort JSON to SQL with OHDSICohortExpressions.jl
 
@@ -74,4 +83,3 @@ using DataFrames
 df = DataFrame(result)
 ```
 
-Continue to [Setup and Cohort Building](plp-setup.md)
