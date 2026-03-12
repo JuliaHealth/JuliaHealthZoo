@@ -7,7 +7,7 @@ We appreciate your interest in improving this project. Before you start contribu
 
 ## Reporting Issues
 
-First off, we assume that you have read the available [Documentation](..).
+First off, we assume that you have read the available [Documentation](https://juliahealth.org/JuliaHealthZoo/dev/).
 
 Before you report an issue, it is best to search for existing [Issues](https://github.com/JuliaHealth/JuliaHealthZoo/issues) that might help you. In case you have found a suitable issue and still need clarification, you can write your question in this issue.
 
@@ -24,13 +24,13 @@ We will then take care of the issue as soon as possible.
 
 - **Implement Code Changes**: Introduce your modifications, ensuring adherence to the [Julia Blue Style Guidelines](https://github.com/invenia/BlueStyle). For new features, include informative comments, docstrings, and consider enriching the documentation with relevant examples.
 
-- **Validate Changes with Tests**: Execute existing tests to verify the compatibility of your alterations with the current functionality. If applicable, incorporate additional tests to validate your new contributions.
+- **Validate Changes with Tests**: Execute personal tests to verify the compatibility of your alterations with the current functionality. If applicable, incorporate additional tests to validate your new contributions.
 
 - **Undergo Code Review**: Subject your code to review by maintainers, who will provide feedback and may request further adjustments before merging.
 
 
 ## License
 
-By contributing to NeuroAnalyzer.jl, you agree that your contributions will be licensed under the [MIT License](..).
+By contributing to JuliaHealthZoo, you agree that your contributions will be licensed under the [MIT License](LICENSE).
 
-Thank you for contributing to NeuroAnalyzer.jl! 🌟
+Thank you for contributing to JuliaHealthZoo! 🌟
