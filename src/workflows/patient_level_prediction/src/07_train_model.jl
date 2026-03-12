@@ -15,9 +15,9 @@ train_df.outcome = categorical(string.(train_df.outcome); levels=["0", "1"])
 test_df.outcome = categorical(string.(test_df.outcome); levels=["0", "1"])
 
 y_train = train_df.outcome
-X_train = select(train_df, Not(:outcome))
+X_train = select(train_df, Not([:outcome, :subject_id]))
 y_test = test_df.outcome
-X_test = select(test_df, Not(:outcome))
+X_test = select(test_df, Not([:outcome, :subject_id]))
 
 function evaluate_model(model, X_train, y_train, X_test, y_test)
     m = machine(model, X_train, y_train; scitype_check_level=0)
@@ -25,8 +25,10 @@ function evaluate_model(model, X_train, y_train, X_test, y_test)
     preds = predict(m, X_test)
     pos_label = levels(y_train)[2]
     probs = [Float64(pdf(p, pos_label)) for p in preds]
-    true_vals = [x == pos_label ? 1.0 : 0.0 for x in y_test]
-    auc_val = auc(ROCAnalysis.roc(probs, true_vals))
+    true_vals = [x == pos_label for x in y_test]
+    tar = probs[true_vals]
+    non = probs[.!true_vals]
+    auc_val = auc(ROCAnalysis.roc(tar, non))
     return auc_val, m
 end
 
