@@ -2,49 +2,33 @@
 
 This page gives focused, runnable examples of each JuliaHealth package used in the Patient-Level Prediction workflow. Each section corresponds to one step in the pipeline - from initializing a study to querying the database.
 
-## 1. Initialize a Study with HealthBase.jl
+In this tutorial, you will:
 
-[HealthBase.jl](https://juliahealth.org/HealthBase.jl/dev/) provides the scaffolding for a reproducible observational health study. It creates a standardized directory layout and activates a dedicated Julia environment for your project.
+- Initialize an observational study scaffold with HealthBase.jl
+- Download cohort definitions and concept sets using OHDSIAPI.jl
+- Translate cohort JSON to SQL expressions using OHDSICohortExpressions.jl
+- Execute translated SQL over OMOP CDM with FunSQL.jl and DBInterface.jl
 
-Initialize the study:
+## Prerequisites
 
-```julia
-using HealthBase
-import HealthBase: cohortsdir
-
-# Creates a new project directory using the observational template
-# and activates a dedicated Julia environment named after the study
-initialize_study("hypertension_to_pneumonia_plp", "Kosuri Lakshmi Indu"; template = :observational)
-```
-This creates:
-
-```
-hypertension_to_pneumonia_plp/
-├── cohorts/          ← cohort JSON definitions land here
-├── results/
-└── study.toml
-```
-
-`cohortsdir()` returns the absolute path to the `cohorts/` subfolder - used by both the download and translate steps below.
-
-First, install the required packages into your global environment:
+First, install the required packages into your Julia environment:
 
 ```julia
 import Pkg
 Pkg.add(
   [
     "DataFrames",
-    "Downloads",
     "DBInterface",
     "DuckDB",
     "FunSQL",
+    "HealthBase",
     "OHDSIAPI",
     "OHDSICohortExpressions"
   ]
 )
 ```
 
-With the environment active, load everything needed for the workflow:
+Then load everything needed for the examples below:
 
 ```julia
 using DataFrames
@@ -63,6 +47,31 @@ import OHDSIAPI:
 import OHDSICohortExpressions:
   translate
 ```
+
+## 1. Initialize a Study with HealthBase.jl
+
+[HealthBase.jl](https://juliahealth.org/HealthBase.jl/dev/) provides the scaffolding for a reproducible observational health study. It creates a standardized directory layout and activates a dedicated Julia environment for your project.
+
+Initialize the study:
+
+```julia
+using HealthBase
+import HealthBase: cohortsdir
+
+# Creates a new project directory using the observational template
+# and activates a dedicated Julia environment named after the study
+initialize_study("hypertension_to_pneumonia_plp", "Kosuri Lakshmi Indu"; template = :observational)
+```
+This creates:
+
+```
+hypertension_to_pneumonia_plp/
+├-- cohorts/          ← cohort JSON definitions land here
+├-- results/
+└-- study.toml
+```
+
+`cohortsdir()` returns the absolute path to the `cohorts/` subfolder - used by both the download and translate steps below.
 
 ## 2. Download Cohort Definitions with OHDSIAPI.jl
 
@@ -86,19 +95,23 @@ cohort_ids = [1792865, 1790632]
 download_cohort_definition(cohort_ids; progress_bar = true, verbose = true, output_dir = cohortsdir())
 ```
 
-You can also download the associated OMOP concept sets - useful for auditing which clinical codes were included in each phenotype:
+You can also download the associated OMOP **concept sets** - the specific clinical codes (SNOMED, RxNorm, etc.) that define each phenotype. This is useful for auditing exactly which diagnoses, drugs, or procedures are included in a cohort definition:
 
 ```julia
 download_concept_set(cohort_ids; deflate = true, output_dir = cohortsdir())
 ```
 
-> **Tip:** Visit [atlas-demo.ohdsi.org/\#/cohortdefinitions](https://atlas-demo.ohdsi.org/#/cohortdefinitions) to explore available phenotype definitions and find the ATLAS cohort ID for any condition of interest.
+Each concept set JSON lists the individual concept IDs and their names, so you can verify that the phenotype captures what you expect.
+
+> **Tip:** Visit [atlas-demo.ohdsi.org/\#/cohortdefinitions](https://atlas-demo.ohdsi.org/#/cohortdefinitions) to explore available phenotype definitions and find the ATLAS cohort ID for any condition of interest. You can also browse concept sets directly at [atlas-demo.ohdsi.org/\#/conceptsets](https://atlas-demo.ohdsi.org/#/conceptsets).
 
 ## 3. Translate Cohort JSON to SQL with OHDSICohortExpressions.jl
 
-[OHDSICohortExpressions.jl](https://github.com/JuliaHealth/OHDSICohortExpressions.jl) converts an ATLAS cohort JSON file into a [FunSQL.jl](https://mechanicalrabbit.github.io/FunSQL.jl/stable/) query expression. No R or ATLAS WebAPI connection is needed at this stage.
+[OHDSICohortExpressions.jl](https://github.com/JuliaHealth/OHDSICohortExpressions.jl) converts an ATLAS cohort JSON file into a [FunSQL.jl](https://mechanicalrabbit.github.io/FunSQL.jl/stable/) query expression. No R, Python, or ATLAS WebAPI connection is needed at this stage - everything runs locally in Julia.
 
 ```julia
+using HealthBase: cohortsdir
+
 # Path to the downloaded target cohort JSON
 cohort_expression = cohortsdir("1792865.json")
 
@@ -161,7 +174,7 @@ println(df)
 > 1×1 DataFrame
 >  Row │ count_star()
 >      │ Int64
-> ─────┼──────────────
+> -----┼--------------
 >    1 │       269607
 > ```
 
@@ -186,13 +199,13 @@ println(df2)
 > 1×1 DataFrame
 >  Row │ count_star()
 >      │ Int64
-> ─────┼──────────────
+> -----┼--------------
 >    1 │        13461
 > ```
 
 ### Ad-hoc Queries with FunSQL
 
-FunSQL is also useful for building exploratory queries in a composable, type-safe way:
+FunSQL is also useful for building exploratory queries in a composable, type-safe way - for example, peeking at the `person` table to inspect raw patient data:
 
 ```julia
 using FunSQL: From, Select, Limit

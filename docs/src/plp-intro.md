@@ -71,3 +71,7 @@ In OHDSI terms:
 - **Prediction** - for each patient at their index date, estimate the probability of the outcome occurring
 
 This is the question the rest of this workflow answers - in Julia, end to end.
+
+---
+
+**Ready to run it?** Head to the [PLP Workflow](plp-workflow.md) for a step-by-step walkthrough of the full pipeline, or see the [Package Examples](plp-examples.md) for focused, runnable demos of each JuliaHealth package.

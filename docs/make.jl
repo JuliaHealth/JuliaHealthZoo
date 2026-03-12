@@ -5,16 +5,15 @@ makedocs(;
     authors="Kosuri Lakshmi Indu and collaborators",
     pages=[
         "Home" => "index.md",
-        "Patient-Level Prediction" => [
-            "Get Started" => "plp-get-started.md",
-            "Introduction" => "plp-intro.md",
-            "Package Examples" => "plp-examples.md",
-            "Setup and Cohort Building" => "plp-setup.md",
-            "Feature Engineering and Preprocessing" => "plp-features.md",
-            "Training and Evaluation" => "plp-modeling.md",
+        "Tutorials" => [
+            "Patient-Level Prediction" => [
+                "Introduction" => "plp-intro.md",
+                "PLP Workflow" => "plp-workflow.md",
+                "Package Examples" => "plp-examples.md",
+            ],
+            "Geospatial Health Informatics" => "geospatial.md",
+            "MRI Simulation and Analysis" => "mri.md",
         ],
-        "Geospatial Health Informatics" => "geospatial.md",
-        "MRI Simulation and Analysis"   => "mri.md",
     ],
     format = DocumenterVitepress.MarkdownVitepress(
         repo = "github.com/JuliaHealth/JuliaHealthZoo",

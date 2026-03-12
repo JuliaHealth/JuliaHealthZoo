@@ -9,7 +9,7 @@ hero:
   actions:
     - theme: brand
       text: Browse Workflows
-      link: /plp-intro
+      link: /tutorials
     - theme: alt
       text: View on GitHub
       link: https://github.com/JuliaHealth/JuliaHealthZoo
@@ -22,7 +22,7 @@ features:
   - icon: 🏥
     title: Patient-Level Prediction
     details: Build a binary classification model from OMOP CDM cohorts using FunSQL.jl, DataFrames.jl, OHDSICohortExpressions.jl, MLJ etc, from raw data to model evaluation.
-    link: /plp
+    link: /plp-workflow
 
   - icon: 🗺️
     title: Geospatial Health Informatics
