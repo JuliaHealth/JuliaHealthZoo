@@ -22,7 +22,7 @@ end
 const conn = DBInterface.connect(DuckDB.DB, DB_PATH)
 DBInterface.execute(conn, "PRAGMA max_temp_directory_size='50GB'")
 
-println("\n── Loading & downloading cohorts ──────────────────────")
+println("\n-- Loading & downloading cohorts ----------------------")
 include(joinpath("src", "01_data_loader.jl"))
 
 config = TOML.parsefile(config_file)
@@ -50,7 +50,7 @@ steps = [
 ]
 
 for (label, path) in steps
-    println("\n── $label ──────────────────────────")
+    println("\n-- $label -------------------------")
     include(path)
 end
 

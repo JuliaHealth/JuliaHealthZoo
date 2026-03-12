@@ -1,7 +1,6 @@
 using CSV
-import DataFrames: DataFrame, nrow, select!, names
+import DataFrames: DataFrame, nrow, ncol, select!, names
 import InvertedIndices: Not
-import CategoricalArrays: categorical
 import MLJBase: partition
 import Statistics: mean, std
 
@@ -16,6 +15,16 @@ function preprocess_data()
             df[!, col] = coalesce.(df[!, col], "unknown")
         end
     end
+
+    # One-hot encode categorical columns so all features are numeric
+    for col in [:gender_concept_id, :race_concept_id, :ethnicity_concept_id]
+        vals = string.(df[!, col])
+        for level in sort(unique(vals))
+            level == "unknown" && continue
+            df[!, Symbol("$(col)_$(level)")] = ifelse.(vals .== level, 1.0, 0.0)
+        end
+    end
+    select!(df, Not([:gender_concept_id, :race_concept_id, :ethnicity_concept_id]))
 
     num_features = [
         :age,
@@ -35,12 +44,16 @@ function preprocess_data()
         end
     end
 
-    df.gender_concept_id = categorical(coalesce.(df.gender_concept_id, "unknown"))
-    df.race_concept_id = categorical(coalesce.(df.race_concept_id, "unknown"))
-    df.ethnicity_concept_id = categorical(coalesce.(df.ethnicity_concept_id, "unknown"))
+    # Ensure all features are Float64 for model compatibility
+    for col in names(df)
+        col == "outcome" && continue
+        col == "subject_id" && continue
+        df[!, col] = Float64.(df[!, col])
+    end
 
     train, test = partition(df, 0.8; shuffle=true)
     println("Train size: ", nrow(train), " | Test size: ", nrow(test))
+    println("Features:   ", ncol(train) - 2, " (excluding subject_id and outcome)")
 
     CSV.write(joinpath(OUTPUT_DIR, "train.csv"), train)
     CSV.write(joinpath(OUTPUT_DIR, "test.csv"), test)
