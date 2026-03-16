@@ -83,21 +83,21 @@ When you run `julia --project=. run.jl`, it executes seven scripts in sequence. 
 │  config.toml            │  ← your settings
 │  data/definitions/*.json│  ← cohort definitions (included)
 └------------┬------------┘
-             ▼
+             |
    01_data_loader.jl         Connect to DuckDB, validate paths
-             ▼
+             |
    02_cohort_definition.jl   Translate JSON -> SQL, populate cohort table
-             ▼
+             |
    03_feature_extraction.jl  Query 6 OMOP tables -> feature matrix
-             ▼
+             |
    04_distribution_check.jl  Print summary statistics for QC
-             ▼
+             |
    05_outcome_attach.jl      Label each patient: outcome = 0 or 1
-             ▼
+             |
    06_preprocessing.jl       Impute, standardize, encode, 80/20 split
-             ▼
+             |
    07_train_model.jl         Train 3 models, print AUC scores
-             ▼
+             |
 ┌-------------------------┐
 │  output/                │  ← all generated CSV files land here
 │    plp_features.csv     │
