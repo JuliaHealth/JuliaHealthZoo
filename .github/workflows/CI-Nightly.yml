@@ -1,0 +1,76 @@
+name: Nightly Latest Deps
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+
+  test-latest:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        workflow:
+          - patient_level_prediction
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1'
+
+      - uses: julia-actions/cache@v2
+
+      - name: Instantiate and update
+        run: |
+          julia --project=src/workflows/${{ matrix.workflow }} -e '
+            using Pkg
+            Pkg.instantiate()
+            Pkg.update()
+          '
+
+      - name: Load packages
+        run: |
+          julia --project=src/workflows/${{ matrix.workflow }} -e '
+            using Pkg
+            for (_,pkg) in Pkg.dependencies()
+                pkg.is_direct_dep || continue
+                @eval using $(Symbol(pkg.name))
+                println(pkg.name)
+            end
+          '
+
+  notify-failure:
+    needs: test-latest
+    if: failure()
+    runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Nightly CI failure ${new Date().toISOString().slice(0,10)}`
+            const body = `Nightly ecosystem integration test failed.\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            })
+
+            if (!issues.data.some(i => i.title.includes('Nightly CI failure'))) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['ci-failure']
+              })
+            }

@@ -1,2 +1,3 @@
-# Julia artifacts
-Manifest.toml
+# Local runtime artifacts
+config.toml
+output/

@@ -1,4 +1,4 @@
-name = "Patient Level Prediction"
+name = "PatientLevelPrediction"
 authors = ["kosuri-indu"]
 
 [deps]
@@ -11,7 +11,6 @@ Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 DuckDB = "d2f5444f-75bc-4fdf-ac35-56f514c445e1"
 FunSQL = "cf6cc811-59f4-4a10-b258-a8547a8f6407"
 InvertedIndices = "41ab1584-1d38-5bbf-9106-f11c6c58b48f"
-JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
 LibPQ = "194296ae-ab2e-5f79-8cd4-7183a0a5a0d1"
 MLJBase = "a7f614a8-145f-11e9-1d2a-a57a1082229d"
 MLJDecisionTreeInterface = "c6f25543-311c-4c74-83dc-3ea6d1015661"
@@ -48,3 +47,9 @@ ROCAnalysis = "0.3.6"
 Tables = "1"
 XGBoost = "2.5.1"
 julia = "1.10"
+
+[extras]
+JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
+
+[targets]
+dev = ["JuliaFormatter"]

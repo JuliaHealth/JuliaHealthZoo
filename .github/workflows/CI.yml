@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  test:
+    name: Workflow Tests (${{ matrix.workflow }}, Julia ${{ matrix.julia-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        julia-version: ['1.10', '1', 'pre']
+        workflow:
+          - patient_level_prediction
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: ${{ matrix.julia-version }}
+
+      - uses: julia-actions/cache@v2
+
+      - name: Instantiate environment
+        run: |
+          julia --project=src/workflows/${{ matrix.workflow }} -e '
+            using Pkg
+            Pkg.instantiate()
+          '
+
+      - name: Load dependencies
+        run: |
+          julia --project=src/workflows/${{ matrix.workflow }} -e '
+            using Pkg
+            for (_,pkg) in Pkg.dependencies()
+                pkg.is_direct_dep || continue
+                @eval using $(Symbol(pkg.name))
+                println(pkg.name)
+            end
+          '
