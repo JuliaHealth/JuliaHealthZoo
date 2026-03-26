@@ -54,7 +54,8 @@ and then aggregate to region-level outputs for mapping.
 
 - `IPUMS.jl`
 	The package used here to parse DDI metadata and load census and boundary extracts.
-	In this repository environment, IPUMS is pinned from the JuliaHealth IPUMS.jl source in the workflow Manifest.
+	In this repository environment, IPUMS is currently installed from the JuliaHealth repository URL because it is not yet registered in Julia General for this workflow setup:
+	`Pkg.add(url="https://github.com/JuliaHealth/IPUMS.jl.git")`.
 
 - `DataFrames.jl`, `Chain.jl`, `StatsBase.jl`
 	Support aggregation, labeling, grouping, and summary steps before visualization.

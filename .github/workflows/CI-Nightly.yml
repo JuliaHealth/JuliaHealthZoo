@@ -14,6 +14,7 @@ jobs:
       matrix:
         workflow:
           - patient_level_prediction
+          - geospatial_census
 
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +24,11 @@ jobs:
           version: "1"
 
       - uses: julia-actions/cache@v2
+
+      - name: Add unregistered geospatial dependencies
+        if: matrix.workflow == 'geospatial_census'
+        run: |
+          julia --project=src/workflows/geospatial_census src/workflows/geospatial_census/add_ipums.jl
 
       - name: Instantiate and update
         run: |

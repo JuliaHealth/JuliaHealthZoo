@@ -33,6 +33,11 @@ jobs:
 
       - uses: julia-actions/cache@v2
 
+      - name: Add unregistered geospatial dependencies
+        if: matrix.workflow == 'geospatial_census'
+        run: |
+          julia --project=src/workflows/geospatial_census src/workflows/geospatial_census/add_ipums.jl
+
       - name: Instantiate environment
         run: |
           julia --project=src/workflows/${{ matrix.workflow }} -e '

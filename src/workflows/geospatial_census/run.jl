@@ -2,6 +2,9 @@ println("Geospatial Health Informatics Using Census Microdata")
 
 using TOML
 
+# IPUMS.jl is currently installed from GitHub for this workflow.
+include(joinpath(@__DIR__, "add_ipums.jl"))
+
 config_file = joinpath(@__DIR__, "config.toml")
 if !isfile(config_file)
     error("""

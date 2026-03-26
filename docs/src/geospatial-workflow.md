@@ -181,9 +181,12 @@ Additional outputs produced by the scripted workflow:
 
 ## Reproducible Scripted Run
 
+`IPUMS.jl` is not registered in Julia General yet for this workflow setup. So we install it from the JuliaHealth repository URL before running the pipeline.
+
 From the workflow directory:
 
 ```bash
+julia --project=. add_ipums.jl
 julia --project=. -e "using Pkg; Pkg.instantiate()"
 copy config.toml.example config.toml
 julia --project=. run.jl
