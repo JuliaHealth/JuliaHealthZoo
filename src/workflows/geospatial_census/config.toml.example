@@ -1,0 +1,31 @@
+# Geospatial Census Workflow Configuration
+# 
+# This file documents the expected data paths for the IPUMS Poland workflow.
+# Copy this to config.toml and update paths to match your local data.
+#
+# Data Sources:
+# - IPUMS International: https://international.ipums.org/
+# - IPUMS NHGIS: https://www.nhgis.org/
+#
+# To set up:
+# 1. Create a directory `poland_data/` in the workflow root
+# 2. Download IPUMS extract (XML and DAT files) 
+# 3. Create a directory `shapefiles/` in the workflow root
+# 4. Download ENUTS2_2013 shapefile from IPUMS NHGIS
+
+[data]
+# Path to IPUMS census data DDI metadata file (XML)
+ipums_ddi = "poland_data/ipumsi_00001.xml"
+
+# Path to IPUMS census data extract (DAT)
+ipums_dat = "poland_data/ipumsi_00001.dat"
+
+# Path to ENUTS2 shapefile for Poland regions
+shapefile = "shapefiles/ENUTS2_2013.shp"
+
+[output]
+# Directory where results will be saved
+dir = "output"
+
+# Figure filename
+figure = "education_choropleth_poland.png"

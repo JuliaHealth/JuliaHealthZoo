@@ -8,10 +8,13 @@ makedocs(;
         "Tutorials" => [
             "Patient-Level Prediction" => [
                 "Introduction" => "plp-intro.md",
-                "PLP Workflow" => "plp-workflow.md",
+                "Workflow" => "plp-workflow.md",
                 "Package Examples" => "plp-examples.md",
             ],
-            "Geospatial Health Informatics" => "geospatial.md",
+            "Geospatial Health Informatics" => [
+                "Introduction" => "geospatial-intro.md",
+                "Workflow" => "geospatial-workflow.md",
+            ],
             "MRI Simulation and Analysis" => "mri.md",
         ],
     ],
