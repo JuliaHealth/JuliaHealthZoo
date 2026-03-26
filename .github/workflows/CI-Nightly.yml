@@ -2,11 +2,10 @@ name: Nightly Latest Deps
 
 on:
   schedule:
-    - cron: '0 6 * * 1'
+    - cron: "0 6 * * 1"
   workflow_dispatch:
 
 jobs:
-
   test-latest:
     runs-on: ubuntu-latest
 
@@ -21,7 +20,7 @@ jobs:
 
       - uses: julia-actions/setup-julia@v2
         with:
-          version: '1'
+          version: "1"
 
       - uses: julia-actions/cache@v2
 

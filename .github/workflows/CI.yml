@@ -12,7 +12,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-
   test:
     name: Workflow Tests (${{ matrix.workflow }}, Julia ${{ matrix.julia-version }})
     runs-on: ubuntu-latest
@@ -20,9 +19,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        julia-version: ['1.10', '1', 'pre']
+        julia-version: ["1.10", "1", "pre"]
         workflow:
           - patient_level_prediction
+          - geospatial_census
 
     steps:
       - uses: actions/checkout@v4

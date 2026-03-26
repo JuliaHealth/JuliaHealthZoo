@@ -14,7 +14,8 @@ Build a full prediction pipeline from OMOP CDM cohorts to model evaluation:
 
 ### Geospatial Health Informatics
 
-- [Geospatial Health Informatics](geospatial.md)
+- [Introduction](geospatial-intro.md)
+- [Workflow](geospatial-workflow.md)
 
 ### MRI Simulation and Analysis
 
