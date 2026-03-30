@@ -15,7 +15,7 @@ but the same approach can be reused for many public-health-relevant measures.
 ## Why Census Microdata + Geospatial Data?
 
 - Census microdata provides person-level or household-level variables, which makes it possible to build detailed indicators.
-- IPUMS data projects are designed for integrated population research across time and place, with harmonized documentation and metadata.
+- IPUMS data projects support integrated population research across time and place, with extract metadata and API-based workflows.
 - Geospatial datasets provide the boundary geometry (for example NUTS regions), which turns tabular indicators into maps.
 - When we aggregate microdata by region and join it to boundaries, we can compare population-level trends and detect spatial inequalities.
 
@@ -24,41 +24,29 @@ Combining both gives an interpretable view for public health planning and commun
 
 ## IPUMS in This Workflow
 
-IPUMS (Integrated Public Use Microdata Series) provides structured census and survey data with rich metadata.
+IPUMS.jl documentation describes the package as an in-development OpenAPI.jl-based client for accessing IPUMS data via the IPUMS API, and also includes examples for parsing DDI metadata and loading extract files.
 In this workflow, IPUMS.jl is used to load:
 
 - DDI metadata (XML)
 - microdata extract files (DAT)
 - NHGIS-style geospatial files for boundaries
 
-This allows a reproducible, script-first pipeline: load metadata, load records, inspect variables,
+This supports a reproducible, script-first pipeline: load metadata, load records, inspect variables,
 and then aggregate to region-level outputs for mapping.
 
 ## Package Stack Used
 
-- `GeoMakie.jl`
-	Geographic plotting utilities in the Makie ecosystem. Its `GeoAxis` supports map projections
-	and coordinate transformations, so data can be displayed in an appropriate destination projection.
+- `GeoMakie.jl`: GeoMakie is a geospatial plotting package in the Makie ecosystem. The official docs present `GeoAxis` as the main entry point, with projection handling via PROJ strings and source/destination CRS settings.
 
-- `CairoMakie.jl`
-	A high-quality Makie backend for SVG/PDF/vector output. This is well-suited for publication-style
-	static figures and clean map exports.
+- `CairoMakie.jl`: CairoMakie is the Makie backend that uses Cairo.jl for vector output (notably SVG/PDF). The official backend docs recommend it for high-quality publication figures.
 
-- `GeoInterfaceMakie.jl`
-	Adds Makie plotting support for geometries that implement GeoInterface traits.
-	In practice, this helps geometry objects from geospatial packages work smoothly with Makie plotting calls.
+- `GeoInterfaceMakie.jl`: Adds Makie plotting support for geometries that implement GeoInterface traits. In practice, this helps geometry objects from geospatial packages work smoothly with Makie plotting calls.
 
-- `GeoDataFrames.jl`
-	A DataFrame-oriented way to read and handle geospatial vector data in Julia,
-	inspired by GeoPandas-style workflows.
+- `GeoDataFrames.jl`: A DataFrame-oriented way to read and handle geospatial vector data in Julia, inspired by GeoPandas-style workflows.
 
-- `IPUMS.jl`
-	The package used here to parse DDI metadata and load census and boundary extracts.
-	In this repository environment, IPUMS is currently installed from the JuliaHealth repository URL because it is not yet registered in Julia General for this workflow setup:
-	`Pkg.add(url="https://github.com/JuliaHealth/IPUMS.jl.git")`.
+- `IPUMS.jl`: The package used here to parse DDI metadata and load census and boundary extracts. This repository installs IPUMS from the JuliaHealth GitHub URL in setup scripts to pin the intended workflow version.
 
-- `DataFrames.jl`, `Chain.jl`, `StatsBase.jl`
-	Support aggregation, labeling, grouping, and summary steps before visualization.
+- `DataFrames.jl`, `Chain.jl`, `StatsBase.jl`: Support aggregation, labeling, grouping, and summary steps before visualization.
 
 ## End-to-End Logic
 
@@ -73,8 +61,9 @@ The workflow is intentionally explicit and reproducible:
 
 Each step is documented and implemented as runnable Julia code in the workflow scripts.
 
-## Reproducibility Note
 
-This example follows a reproducible Poland workflow with explicit file paths, clear transformations,
-and deterministic plotting steps. If restricted datasets are unavailable, the same structure can be
-reused with other compatible IPUMS extracts and boundary files.
+## Official Documentation Used for Validation
+
+- GeoMakie docs: https://geo.makie.org/stable/
+- CairoMakie backend docs: https://docs.makie.org/stable/explanations/backends/cairomakie
+- IPUMS.jl docs: https://juliahealth.org/IPUMS.jl/dev/

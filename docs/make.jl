@@ -15,7 +15,14 @@ makedocs(;
                 "Introduction" => "geospatial-intro.md",
                 "Workflow" => "geospatial-workflow.md",
             ],
-            "MRI Simulation and Analysis" => "mri.md",
+            "MRI Simulation and Analysis" => [
+                "Introduction" => "mri-intro.md",
+                "KomaMRI.jl" => "mri-komamri.md",
+                "MRIReco.jl" => "mri-mrireco.md",
+                "BART and BartIO.jl" => "mri-bart-bartio.md",
+                "Interoperability (PythonCall/C++)" => "mri-interop.md",
+                "End-to-End Workflow" => "mri-workflow.md",
+            ],
         ],
     ],
     format = DocumenterVitepress.MarkdownVitepress(

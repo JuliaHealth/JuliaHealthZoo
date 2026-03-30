@@ -181,7 +181,7 @@ Additional outputs produced by the scripted workflow:
 
 ## Reproducible Scripted Run
 
-`IPUMS.jl` is not registered in Julia General yet for this workflow setup. So we install it from the JuliaHealth repository URL before running the pipeline.
+This repository installs IPUMS.jl from the JuliaHealth GitHub URL in its setup helper so the workflow uses a known package source.
 
 From the workflow directory:
 
@@ -207,3 +207,9 @@ The scripted workflow is implemented in:
 - `src/workflows/geospatial_census/src/03_visualize.jl`
 
 This keeps acquisition, preprocessing, integration, and visualization steps explicit and reproducible.
+
+## Official Documentation Used for Validation
+
+- GeoMakie docs: https://geo.makie.org/stable/
+- CairoMakie backend docs: https://docs.makie.org/stable/explanations/backends/cairomakie
+- IPUMS.jl docs: https://juliahealth.org/IPUMS.jl/dev/
