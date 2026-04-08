@@ -23,6 +23,7 @@ jobs:
         workflow:
           - patient_level_prediction
           - geospatial_census
+          - mri_simulation
 
     steps:
       - uses: actions/checkout@v4
@@ -55,3 +56,13 @@ jobs:
                 println(pkg.name)
             end
           '
+
+      - name: Prepare MRI simulation config
+        if: matrix.workflow == 'mri_simulation'
+        run: |
+          cp src/workflows/mri_simulation/config.toml.example src/workflows/mri_simulation/config.toml
+
+      - name: Run MRI simulation workflow
+        if: matrix.workflow == 'mri_simulation'
+        run: |
+          julia --project=src/workflows/mri_simulation src/workflows/mri_simulation/run.jl

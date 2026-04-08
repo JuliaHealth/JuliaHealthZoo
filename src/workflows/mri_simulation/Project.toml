@@ -1,0 +1,10 @@
+name = "MRISimulationReconstructionWorkflow"
+authors = ["JuliaHealth contributors"]
+
+[deps]
+BartIO = "8b90e6a2-6e4d-4906-89ae-b5f72ca4a65b"
+KomaMRI = "6a340f8b-2cdf-4c04-99be-4953d9b66d0a"
+MRIReco = "bdf86e05-2d2b-5731-a332-f3fe1f9e047f"
+
+[compat]
+julia = "1.10"

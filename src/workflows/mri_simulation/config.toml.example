@@ -1,0 +1,12 @@
+[output]
+dir = "output"
+
+[koma]
+# Use CPU for reproducibility on machines without GPU support.
+gpu = false
+
+[bart]
+# Optional BART/BartIO execution. Enable only if BART is installed locally.
+enabled = false
+# Example: "/usr/local/bin/bart" or "C:/tools/bart/bart.exe"
+bart_path = ""
